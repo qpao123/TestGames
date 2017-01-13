@@ -1,59 +1,63 @@
 user  www;
-worker_processes  auto; #nginx进程数
-worker_cpu_affinity auto; #绑定worker进程和CPU
-worker_rlimit_nofile 65535; #每个nginx进程打开文件描述符的最大数目
+worker_processes  auto;                #nginx进程数
+worker_cpu_affinity auto;              #绑定worker进程和CPU
+worker_rlimit_nofile 65535;            #每个nginx进程打开文件描述符的最大数目
 error_log  /data/logs/nginx/error.log; #错误日志
 
 events {
-    use epoll; #使用的网络I/O模型
-    worker_connections  65535; #每个工作进程允许最大的同时连接数
+    use epoll;                         #使用的网络I/O模型
+    worker_connections  65535;         #每个工作进程允许最大的同时连接数
 }
 
 http {
     include           mime.types;
     default_type      application/octet-stream;
     charset           utf-8;
-    server_tokens     off; #并不会让nginx执行的速度更快，但它可以关闭在错误页面中的nginx版本数字，这样对于安全性是有好处的
+    server_tokens     off;             #并不会让nginx执行的速度更快，但它可以关闭在错误页面中的nginx版本数字，这样对于安全性是有好处的
     server_tag        off;
     server_info       off;
 
-    access_log  off; #nginx是否将存储访问日志。关闭这个选项可以让读取磁盘IO操作更快，但是就不能记录访问日志了，看情况使用
+    access_log  off;                   #nginx是否将存储访问日志。关闭这个选项可以让读取磁盘IO操作更快，但是就不能记录访问日志了，看情况使用
     #access_log  /data/logs/nginx/access.log main;
 
-    sendfile          on;  #sendfile指令指定 nginx 是否调用sendfile 函数（zero copy 方式）来输出文件，对于普通应用，必须设为on。
-    tcp_nopush        on;  #告诉nginx在一个数据包里发送所有头文件，而不一个接一个的发送。
-    tcp_nodelay       on;  #告诉nginx不要缓存数据，而是一段一段的发送--当需要及时发送数据时，就应该给应用设置这个属性，这样发送一小块数据信息时就不能立即得到返回值。
-    send_timeout      10s; #指定客户端的响应超时时间。这个设置不会用于整个转发器，而是在两次客户端读取操作之间。如果在这段时间内，客户端没有读取任何数据，nginx就会关闭连接。
-    keepalive_timeout 60s; #给客户端分配keep-alive链接超时时间。服务器将在这个超时时间过后关闭链接。我们将它设置低些可以让ngnix持续工作的时间更长
+    sendfile          on;              #sendfile指令指定 nginx 是否调用sendfile 函数（zero copy 方式）来输出文件，对于普通应用，必须设为on。
+    tcp_nopush        on;              #告诉nginx在一个数据包里发送所有头文件，而不一个接一个的发送。
+    tcp_nodelay       on;              #告诉nginx不要缓存数据，而是一段一段的发送--当需要及时发送数据时，就应该给应用设置这个属性，这样发送一小块数据信息时就不能立即得到返回值。
+    send_timeout      30s;             #指定客户端的响应超时时间。这个设置不会用于整个转发器，而是在两次客户端读取操作之间。如果在这段时间内，客户端没有读取任何数据，nginx就会关闭连接。
+    keepalive_timeout 60s;             #给客户端分配keep-alive链接超时时间。服务器将在这个超时时间过后关闭链接。我们将它设置低些可以让ngnix持续工作的时间更长
 
-    gzip            on;    #开启gzip压缩
-    gzip_comp_level 3;     #设置数据的压缩等级
-    gzip_min_length 1024;  #设置对数据启用压缩的最少字节数
-    gzip_buffers    4 25k; #设置申请内存的大小(25k)，倍数(4)
+    gzip            on;                #开启gzip压缩
+    gzip_comp_level 3;                 #设置数据的压缩等级
+    gzip_min_length 1024;              #设置对数据启用压缩的最少字节数
+    gzip_buffers    4 25k;             #设置申请内存的大小(25k)，倍数(4)
+    gzip_types      text/plain application/x-javascript text/css application/xml text/javascript;
+    gzip_vary       on;                #根据客户端的HTTP头来判断，是否需要压缩(有的浏览器不支持)
 
-    client_header_timeout 10s;  #设置请求头的超时时间
-    client_body_timeout 10s;    #设置请求体的超时时间
-    client_max_body_size 50M;   #nginx最大上传大小50M，可以自己调节
-    client_body_buffer_size 128k;  #设置请求体缓存区大小，如果上传很大的图片，文件体超过128k，会出500错误
+    client_header_timeout 30s;         #设置请求头的超时时间
+    client_body_timeout 30s;           #设置请求体的超时时间
+    client_max_body_size 50M;          #nginx最大上传大小50M，可以自己调节
+    client_body_buffer_size 128k;      #设置请求体缓存区大小，如果上传很大的图片，文件体超过128k，会出500错误
+    client_header_buffer_size 1k;      #指令指定了处理客户端请求header部分的buffer的大小
+    large_client_header_buffers 4 8k;  #指令分配用于处理从用户那里来的大文件头请求的buffer的最大数量和buffer大小
 
     proxy_redirect off;
-    proxy_set_header Host $host; #以下三行，目的是将代理服务器收到的用户的信息传到真实服务器上
+    proxy_set_header Host $host;       #以下三行，目的是将代理服务器收到的用户的信息传到真实服务器上
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_connect_timeout 30s;   #后端服务器连接的超时时间_发起握手等候响应超时时间
-    proxy_send_timeout 30s;      #后端服务器数据回传时间_就是在规定时间之内后端服务器必须传完所有的数据
-    proxy_read_timeout 30s;      #连接成功后_等候后端服务器响应时间_其实已经进入后端的排队之中等候处理（也可以说是后端服务器处理请求的时间）
-    proxy_buffer_size 4k;        #设置从被代理服务器读取的第一部分应答的缓冲区大小，通常情况下这部分应答中包含一个小的应答头，默认情况下这个值的大小为指令proxy_buffers中指定的一个缓冲区的大小，不过可以将其设置为更小
-    proxy_buffers 4 32k;         #设置用于读取应答（来自被代理服务器）的缓冲区数目和大小，默认情况也为分页大小，根据操作系统的不同可能是4k或者8k
-    proxy_busy_buffers_size 64k; #设置系统很忙时可以使用的proxy_buffers的大小
-    proxy_temp_file_write_size 100k; #指定proxy缓存临时文件的大小
+    proxy_connect_timeout 30s;         #后端服务器连接的超时时间_发起握手等候响应超时时间
+    proxy_send_timeout 30s;            #后端服务器数据回传时间_就是在规定时间之内后端服务器必须传完所有的数据
+    proxy_read_timeout 30s;            #连接成功后_等候后端服务器响应时间_其实已经进入后端的排队之中等候处理（也可以说是后端服务器处理请求的时间）
+    proxy_buffer_size 4k;              #设置从被代理服务器读取的第一部分应答的缓冲区大小，通常情况下这部分应答中包含一个小的应答头，默认情况下这个值的大小为指令proxy_buffers中指定的一个缓冲区的大小，不过可以将其设置为更小
+    proxy_buffers 4 32k;               #设置用于读取应答（来自被代理服务器）的缓冲区数目和大小，默认情况也为分页大小，根据操作系统的不同可能是4k或者8k
+    proxy_busy_buffers_size 64k;       #设置系统很忙时可以使用的proxy_buffers的大小
+    proxy_temp_file_write_size 100k;   #指定proxy缓存临时文件的大小
     proxy_cache_path /data/proxy_cache levels=1:2 keys_zone=nginx_cache:200m inactive=10d max_size=1g; #设置内存缓存空间大小为200MB，10天没有被访问的内容自动清除，硬盘缓存空间大小为1GB。
 
-    fastcgi_connect_timeout 30s; #指定连接到后端FastCGI的超时时间
-    fastcgi_send_timeout 30s;    #指定向FastCGI传送请求的超时时间，这个值是已经完成两次握手后向FastCGI传送请求的超时时间
-    fastcgi_read_timeout 30s;    #指定接收FastCGI应答的超时时间，这个值是已经完成两次握手后接收FastCGI应答的超时时间。
-    fastcgi_buffer_size 64k;     #用于指定读取FastCGI应答头需要用多大的缓冲区
-    fastcgi_buffers 4 64k;       #指定服务器需要用多少和多大的缓冲区来缓冲FastCGI的应答请求。如果一个PHP脚本所产生的页面大小为256KB，那么会为其分配4个64KB的缓冲区来缓存；如果页面大小大于256KB，那么大于256KB的部分会缓存到fastcgi_temp指定的路径中，但是这并不是好方法，因为内存中的数据处理速度要快于硬盘。
+    fastcgi_connect_timeout 300s;      #指定连接到后端FastCGI的超时时间
+    fastcgi_send_timeout 300s;         #指定向FastCGI传送请求的超时时间，这个值是已经完成两次握手后向FastCGI传送请求的超时时间
+    fastcgi_read_timeout 300s;         #指定接收FastCGI应答的超时时间，这个值是已经完成两次握手后接收FastCGI应答的超时时间。
+    fastcgi_buffer_size 64k;           #用于指定读取FastCGI应答头需要用多大的缓冲区
+    fastcgi_buffers 4 64k;             #指定服务器需要用多少和多大的缓冲区来缓冲FastCGI的应答请求。如果一个PHP脚本所产生的页面大小为256KB，那么会为其分配4个64KB的缓冲区来缓存；如果页面大小大于256KB，那么大于256KB的部分会缓存到fastcgi_temp指定的路径中，但是这并不是好方法，因为内存中的数据处理速度要快于硬盘。
     fastcgi_busy_buffers_size 128k;    #设置系统很忙时可以使用的fastcgi_buffers的大小，默认值是fastcgi_buffers的两倍。
     fastcgi_temp_file_write_size 128k; #写入缓存文件时使用多大的数据块，默认值是fastcgi_buffers的两倍。
     fastcgi_keep_conn on;              #启用fastcgi长连接支持
@@ -61,7 +65,12 @@ http {
     fastcgi_max_temp_file_size 2048m;  #fastcgi的应答请求超过buffer的大小时，会存到临时文件中，这个用来设置缓存文件的最大值
     fastcgi_temp_path /data/fastcgi_temp 1 2;
 
-    upstream php-fpm { server unix:/dev/php-fpm.sock; }
+    upstream php-fpm {
+        server unix:/dev/php-fpm1.sock; #使PHP-FPM使用Unix套接字，这避免了TCP的开销
+        server unix:/dev/php-fpm2.sock;
+        server unix:/dev/php-fpm3.sock;
+        server unix:/dev/php-fpm4.sock;
+    }
     include lnmp/*.conf;
 
 
@@ -82,6 +91,11 @@ http {
             fastcgi_param  SCRIPT_FILENAME $local_index;
             include        fastcgi_params;
             fastcgi_keep_conn on; #启用fastcgi长连接支持
+        }
+
+        error_page 404 /404.html;
+        location = /404.html {
+            root /www/error;
         }
 
         error_page 500 502 503 504 /500.html;

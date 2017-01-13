@@ -1,0 +1,3 @@
+网络I/O模型 http://www.cnblogs.com/Anker/p/3254269.html
+并发I/O编程 http://www.jianshu.com/p/7e7796705574
+通常linux中的进程通信方式有：消息队列、信号量、共享内存、信号、管道、socket。
