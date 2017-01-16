@@ -1,111 +1,342 @@
-[global]
-pid = run/php-fpm.pid
+后面打#号的配置，是和默认配置不一样的。调整时百度下，看是否需要
 
-error_log = /data/logs/php-fpm/error.fpm.log
+engine = On
 
-log_level = notice
+short_open_tag = Off
 
-emergency_restart_threshold = 0  #表示在emergency_restart_interval所设值内出现SIGSEGV或者SIGBUS错误的php-cgi进程数如果超过 emergency_restart_threshold个，php-fpm就会优雅重启。这两个选项一般保持默认值。
+asp_tags = Off
 
-emergency_restart_interval = 0
+precision = 14
 
-process.max = 300  #设置子进程最大数
+output_buffering = 4096
 
-daemonize = yes  #后台执行
+zlib.output_compression = Off
 
-rlimit_files = 65535  #设置文件打开描述符的rlimit限制
+implicit_flush = Off
 
-events.mechanism = epoll  #事件通知机制(网络I/O)
+unserialize_callback_func =
 
+serialize_precision = 17 ##
 
-[php-fpm-001]
-user = www
-group = www
-listen = /dev/php-fpm1.sock
-listen.owner = www
-listen.group = www
-listen.mode = 0660
-listen.backlog = 2048
-listen.allowed_clients = 127.0.0.1
+open_basedir = ##
 
-pm = dynamic
-pm.max_children = 200
-pm.start_servers = 12
-pm.min_spare_servers = 12
-pm.max_spare_servers = 24
-pm.process_idle_timeout = 10s;
-pm.max_requests = 1000
-pm.status_path = /fpm_status001
+;allow_call_time_pass_reference = Off
 
-[php-fpm-002]
-user = www
-group = www
-listen = /dev/php-fpm2.sock
-listen.owner = www
-listen.group = www
-listen.mode = 0660
-listen.backlog = 2048
-listen.allowed_clients = 127.0.0.1
+;safe_mode = Off
 
-pm = dynamic
-pm.max_children = 200
-pm.start_servers = 12
-pm.min_spare_servers = 12
-pm.max_spare_servers = 24
-pm.process_idle_timeout = 10s;
-pm.max_requests = 1000
-pm.status_path = /fpm_status002
+;safe_mode_gid = Off
 
-[php-fpm-003]
-user = www
-group = www
-listen = /dev/php-fpm3.sock
-listen.owner = www
-listen.group = www
-listen.mode = 0660
-listen.backlog = 2048
-listen.allowed_clients = 127.0.0.1
+;safe_mode_include_dir =
 
-pm = dynamic
-pm.max_children = 200
-pm.start_servers = 12
-pm.min_spare_servers = 12
-pm.max_spare_servers = 24
-pm.process_idle_timeout = 10s;
-pm.max_requests = 1000
-pm.status_path = /fpm_status003
+;safe_mode_exec_dir =
 
-[php-fpm-004]
-user = www
-group = www
-listen = /dev/php-fpm4.sock
-listen.owner = www
-listen.group = www
-listen.mode = 0660
-listen.backlog = 2048 #已连接但未进行accept处理的SOCKET队列大小。注意这个值过大,fpm处理不过来，导致队列等待时间超过NGINX的proxy。过小，会拒绝nginx发过来的连接
-listen.allowed_clients = 127.0.0.1 #允许FastCGI客户端连接的IPv4地址，多个地址用','分隔，为空则允许任何地址发来链接请求
+;safe_mode_allowed_env_vars = PHP_
 
-pm = dynamic  #动态创建进程
-pm.max_children = 200  #同一时刻能够存活的最大子进程的数量
-pm.start_servers = 12  #在启动时启动的子进程数量
-pm.min_spare_servers = 12 #处于空闲"idle"状态的最小子进程，如果空闲进程数量小于这个值，那么相应的子进程会被创建
-pm.max_spare_servers = 24 #最大空闲子进程数量，空闲子进程数量超过这个值，那么相应的子进程会被杀掉
-pm.process_idle_timeout = 10s; #空闲进程超时时间
-pm.max_requests = 1000    #每个进程接受的请求最大数
-pm.status_path = /fpm_status004  #配置一个URI，以便查看fpm状态页
+;safe_mode_protected_env_vars = LD_LIBRARY_PATH
 
-access.log = /data/logs/php-fpm/access.fpm.log #日志路径
-access.format = "%R - %u %t \"%m %r%Q%q\" %s %f %{mili}d %{kilo}M %C%%" #日志格式
+disable_functions =
 
-slowlog = /data/logs/php-fpm/log.slow #慢请求日志
-request_slowlog_timeout = 5 #当一个请求超过设置的该时间，就会将对应的PHP调用堆栈信息完整写入到慢日志中.
-request_terminate_timeout = 180 #设置单个请求的超时中止时间.设置为 '0' 表示 'Off'.注意这个如果过大，会导致进程一直卡在哪里，Nginx无法处理新请求，返回502。这个值是PHP脚本最大执行时间
+disable_classes =
 
-catch_workers_output = yes #重定向运行过程中的stdout和stderr到主要的错误日志文件中. 如果没有设置, stdout 和 stderr 将会根据FastCGI的规则被重定向到 /dev/null . 默认值: 空.
-security.limit_extensions = .php #设置只能处理php后缀文件
-env[HOSTNAME] = $HOSTNAME #设置php的全局变量$_ENV
-env[PATH] = /usr/local/bin:/usr/bin:/bin
-env[TMP] = /tmp
-env[TMPDIR] = /tmp
-env[TEMP] = /tmp
+zend.enable_gc = On ##
+
+expose_php = Off ##
+
+max_execution_time = 300 ##
+
+max_input_time = 300 ##
+
+memory_limit = 128M
+
+error_reporting = E_ALL
+
+display_errors = Off ##
+
+display_startup_errors = Off
+
+log_errors = On
+
+log_errors_max_len = 1024
+
+ignore_repeated_errors = Off
+
+ignore_repeated_source = Off
+
+report_memleaks = On
+
+track_errors = Off
+
+html_errors = On ##
+
+error_log = /data/logs/php-fpm/error.php.log
+
+variables_order = "GPCS"
+
+request_order = "GP"
+
+;register_globals = Off
+
+;register_long_arrays = Off
+
+register_argc_argv = Off
+
+auto_globals_jit = On
+
+post_max_size = 50M ##
+
+;magic_quotes_gpc = Off
+
+;magic_quotes_runtime = Off
+
+;magic_quotes_sybase = Off
+
+auto_prepend_file =
+
+auto_append_file =
+
+default_mimetype = "text/html"
+
+always_populate_raw_post_data = -1 ##
+
+doc_root =
+
+user_dir =
+
+enable_dl = Off
+
+file_uploads = On
+
+upload_max_filesize = 50M ##
+
+max_file_uploads = 25 ##
+
+allow_url_fopen = On
+
+allow_url_include = Off
+
+default_socket_timeout = 60
+
+[Date]
+date.timezone = Asia/Shanghai #
+
+[filter]
+
+[iconv]
+
+[intl]
+
+[sqlite]
+
+[sqlite3]
+
+[Pcre]
+
+[Pdo]
+
+[Pdo_mysql]
+pdo_mysql.cache_size = 2000  ##
+pdo_mysql.default_socket=  ##
+
+[Phar]
+
+[Syslog]
+;define_syslog_variables  = Off
+
+[mail function]
+SMTP = localhost
+smtp_port = 25
+;sendmail_path = /usr/sbin/sendmail -t -i
+mail.add_x_header = On
+
+[SQL]
+sql.safe_mode = Off
+
+[ODBC]
+
+odbc.allow_persistent = On
+
+odbc.check_persistent = On
+
+odbc.max_persistent = -1
+
+odbc.max_links = -1
+
+odbc.defaultlrl = 4096
+
+odbc.defaultbinmode = 1
+
+[MySQL]
+mysql.allow_local_infile = On ##
+
+mysql.allow_persistent = On
+
+mysql.cache_size = 2000 ##
+
+mysql.max_persistent = -1
+
+mysql.max_links = -1
+
+mysql.default_port =
+
+mysql.default_socket =
+
+mysql.default_host =
+
+mysql.default_user =
+
+mysql.default_password =
+
+mysql.connect_timeout = 30
+
+mysql.trace_mode = Off
+
+[MySQLi]
+mysqli.max_persistent = -1 ##
+
+mysqli.allow_persistent = On
+
+mysqli.max_links = -1
+
+mysqli.cache_size = 2000 ##
+
+mysqli.default_port = 3306
+
+mysqli.default_socket =
+
+mysqli.default_host =
+
+mysqli.default_user =
+
+mysqli.default_pw =
+
+mysqli.reconnect = Off
+
+[mysqlnd]
+mysqlnd.collect_statistics = On ##
+
+mysqlnd.collect_memory_statistics = Off ##
+
+[PostgresSQL]
+pgsql.allow_persistent = On
+
+pgsql.auto_reset_persistent = Off
+
+pgsql.max_persistent = -1
+
+pgsql.max_links = -1
+
+pgsql.ignore_notice = 0
+
+pgsql.log_notice = 0
+
+[Sybase-CT]
+sybct.allow_persistent = On
+
+sybct.max_persistent = -1
+
+sybct.max_links = -1
+
+sybct.min_server_severity = 10
+
+sybct.min_client_severity = 10
+
+[bcmath]
+bcmath.scale = 0
+
+[browscap]
+
+[Session]
+session.save_handler = files
+
+session.save_path = "/var/lib/php/session"
+
+session.use_cookies = 1
+
+session.use_only_cookies = 1
+
+session.name = PHPSESSID
+
+session.auto_start = 0
+
+session.cookie_lifetime = 0
+
+session.cookie_path = /
+
+session.cookie_domain =
+
+session.cookie_httponly =
+
+session.serialize_handler = php
+
+session.gc_probability = 1
+
+session.gc_divisor = 1000
+
+session.gc_maxlifetime = 1440
+
+session.bug_compat_42 = Off
+
+session.bug_compat_warn = Off
+
+session.referer_check =
+
+;session.entropy_length = 0
+
+;session.entropy_file =
+
+session.cache_limiter = nocache
+
+session.cache_expire = 180
+
+session.use_trans_sid = 0
+
+session.hash_function = 0
+
+session.hash_bits_per_character = 5
+
+url_rewriter.tags = "a=href,area=href,frame=src,input=src,form=fakeentry"
+
+[MSSQL]
+mssql.allow_persistent = On
+
+mssql.max_persistent = -1
+
+mssql.max_links = -1
+
+mssql.min_error_severity = 10
+
+mssql.min_message_severity = 10
+
+mssql.compatability_mode = Off
+
+mssql.secure_connection = Off
+
+[Assertion]
+
+[COM]
+
+[mbstring]
+
+[gd]
+
+[exif]
+
+[Tidy]
+
+tidy.clean_output = Off
+
+[soap]
+soap.wsdl_cache_enabled=1
+
+soap.wsdl_cache_dir="/tmp"
+
+soap.wsdl_cache_ttl=86400
+
+soap.wsdl_cache_limit = 5 ##
+
+[sysvshm]
+
+[ldap]
+ldap.max_links = -1 ##
+
 
