@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>demo</title>
+</head>
+<body>
+	<video id="video" autoplay=""style='width:640px;height:480px'></video>
+
+	<canvas id="output" style="display:none;"></canvas>
+</body>
+<script>
+	//通过websocket连接9966端口，通过canvas的图片截取toDataURL，把摄像头图片传给后台9966端口接收
+	var socket = new WebSocket('ws://127.0.0.1:9966');
+    var output = document.getElementById('output');
+    var context = output.getContext('2d');
+	var video = document.getElementById('video');
+
+	//navigator.getUserMedia这个api的回调
+	var success = function(stream){
+            video.src = window.URL.createObjectURL(stream);
+    }
+
+    //连接上websocket时候的回调
+    socket.onopen = function(){
+    	draw();
+    }
+
+    var draw = function(){
+    	//canvas截取video的图像信息，在通过toDataURL返回给后台
+    	context.drawImage(video,0,0,output.width,output.height);
+
+    	if(video.src){
+    		//发送数据给后台监听端口
+    		socket.send(output.toDataURL("image/jpeg",0.7));
+    	}
+
+    	setTimeout(draw,100);
+    }
+
+    // 此页面是不需要返回服务端数据的，服务端返回的是给用户看的视频内容，返回给客户端页面
+    // socket.onmessage = function(data){
+    // 	console.log(data)
+    // }
+
+    navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia ||
+    navigator.mozGetUserMedia || navigator.msGetUserMedia;
+    navigator.getUserMedia({video:true, audio:false}, success, console.log);
+
+</script>
+</html>

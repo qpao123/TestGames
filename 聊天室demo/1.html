@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script src="jquery.min.js"></script>
+	<style>
+		*{margin:0;padding:0;}
+		ul{list-style:none}
+		ul li{color:#1372A2;}
+		p{margin-bottom:10px;}
+		.chat{margin:10px auto;width:500px;}
+		#main{width:300px;height:300px;border:1px solid #ccc;float:left;background:#EEEEEE}
+		#right{width:100px;height:300px;border:1px solid #ccc;margin-left:10px;float:left;background:#EEEEEE}
+		#box{width:500px;height:100px;margin-top:20px;}
+	</style>
+</head>
+<body>
+	<div class='chat'>
+		<div id="main"></div>
+		<div id="right">
+			在线用户
+			<ul id="js-ul"></ul>
+		</div>
+		<div style="clear:both;"></div>
+		<div id="box">
+			<select id="js-select">
+				<option value="0">所有人</option>
+			</select>
+			<input id="content" type="text" name="content" value=""/>
+			<button id="btn">提交</button>
+		</div>
+	</div>
+</body>
+<script>
+	var ws, name, client_list={};
+
+	var connect = function(){
+		//创建websocket
+		ws = new WebSocket('ws://127.0.0.1:2388');
+		//当连接打开时
+		ws.onopen = open;
+		//监听消息
+		ws.onmessage = message;
+		//监听websocket关闭
+		ws.onclose = close;
+		//监听错误
+		ws.onerror = error;
+	};
+
+	var open = function(){
+		if(!name) {show_prompt()};
+		//发送登录信息,json格式要严格，双引号必须要，否则php接收不能解析
+		var login_data = '{"type":"login","name":"'+name+'"}';
+		ws.send(login_data);
+	};
+
+	var message = function(e){
+		var data = eval("("+e.data+")"); 
+		switch(data.type){
+			case "login":
+				say('欢迎'+data.name+'来到房间');
+				if(data.user_list){
+					client_list = data.user_list
+				}else{
+					//for var in 这种写法可以遍历对象属性
+					for(var i in data.new_user_list){
+						client_list[i] = data.new_user_list[i];
+					}
+				}
+				flush_client_list(client_list);
+				break;
+			case "say":
+				if(data.to_client_name){
+					say(data.name+'对'+data.to_client_name+'说：'+data.content);
+				}else{
+					say(data.name+'说：'+data.content);
+				}
+				break;
+			case "logout":
+				say(data.name+'离开了房间');
+				for(var i in client_list){
+					if(client_list[i] == data.name){
+						delete client_list[i];
+					}
+				}
+				flush_client_list(client_list);
+				break;
+		}
+	};
+
+	var close = function(){
+		console.log('连接关闭，重新连接');
+		//connect();
+	};
+
+	var error = function(){
+		console.log('出现错误');
+	};
+
+	var show_prompt = function(){
+		name = prompt("输入你的名字：","");
+		if(!name || name=='null'){
+			alert("输入名字为空，请重新输入！");
+			show_prompt();
+		}
+	};
+
+	var say = function(content){
+		//超过10条记录，删除最上面一条
+		var n = $('#main p').length;
+		if(n>10){$('#main p:first').remove();}
+		$('#main').append('<p>'+content+'</p>');
+	};
+
+	var flush_client_list = function(obj){
+		var data = '', para = '';
+		for(var i in obj){
+			data += '<option value="'+i+'">'+obj[i]+'</option>';
+			para += '<li>'+obj[i]+'</li>';
+		}
+		$('#js-select option').not(':first').remove();
+		$('#js-select').append(data);
+		$('#js-ul').empty().append(para);
+	};
+
+	$('#btn').on('click',function(){
+		var content = $.trim($('#content').val());
+		var to_client_id = $('#js-select').val();
+		var to_client_name = $('#js-select option:selected').text();
+		var data = '{"type":"say","name":"'+name+'","content":"'+content+'","to_client_id":"'+to_client_id+'","to_client_name":"'+to_client_name+'"}'
+		ws.send(data);
+		$('#content').val('').focus();
+	})
+
+	connect();
+</script>
+</html>
