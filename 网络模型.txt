@@ -1,5 +1,7 @@
 网络I/O模型 http://www.cnblogs.com/Anker/p/3254269.html
 并发I/O编程 http://www.jianshu.com/p/7e7796705574
 libevent网络库 http://blog.sina.com.cn/s/blog_62b832910100w7fp.html
+libevent安装使用 http://www.phpddt.com/php/libevent.html
 pcntl_signal信号 http://blog.csdn.net/xiaofeng119/article/details/7264356
+socket探索 http://blog.csdn.net/shagoo/article/details/6396089
 通常linux中的进程通信方式有：消息队列、信号量、共享内存、信号、管道、socket。
