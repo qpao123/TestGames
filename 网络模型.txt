@@ -5,4 +5,8 @@ libevent安装使用 http://www.phpddt.com/php/libevent.html
 pcntl_signal信号 http://blog.csdn.net/xiaofeng119/article/details/7264356
 pcntl系列函数 http://blog.csdn.net/lgg201/article/details/5809994
 socket探索 http://blog.csdn.net/shagoo/article/details/6396089
+php博客 http://www.cnblogs.com/52php/category/911973.html
+php博客 http://www.cnblogs.com/chunguang/p/5583649.html
+php博客 http://blog.csdn.net/github_26672553/article/category/3092195
+php手册 http://php.net/manual/zh
 通常linux中的进程通信方式有：消息队列、信号量、共享内存、信号、管道、socket。
