@@ -9,4 +9,5 @@ php博客 http://www.cnblogs.com/52php/category/911973.html
 php博客 http://www.cnblogs.com/chunguang/p/5583649.html
 php博客 http://blog.csdn.net/github_26672553/article/category/3092195
 php手册 http://php.net/manual/zh
+视频直播博客 http://www.cnblogs.com/zx-admin/p/5697447.html
 通常linux中的进程通信方式有：消息队列、信号量、共享内存、信号、管道、socket。
